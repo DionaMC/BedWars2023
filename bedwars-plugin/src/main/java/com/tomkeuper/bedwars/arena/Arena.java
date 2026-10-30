@@ -1391,6 +1391,29 @@ public class Arena implements IArena {
      * @param p Target player
      * @return The arena where the player is in. Can be NULL.
      */
+    /**
+     * The player by their id, online or in an arena; players added through the API without logging in (server-side
+     * bots) are in no server list.
+     */
+    public static @Nullable Player getPlayer(UUID uuid) {
+        Player player = Bukkit.getPlayer(uuid);
+        if (player != null) return player;
+        for (Player inArena : arenaByPlayer.keySet()) {
+            if (inArena.getUniqueId().equals(uuid)) return inArena;
+        }
+        return null;
+    }
+
+    /** The player by their exact name, online or in an arena. */
+    public static @Nullable Player getPlayerExact(String name) {
+        Player player = Bukkit.getPlayerExact(name);
+        if (player != null) return player;
+        for (Player inArena : arenaByPlayer.keySet()) {
+            if (inArena.getName().equals(name)) return inArena;
+        }
+        return null;
+    }
+
     public static @Nullable IArena getArenaByPlayer(Player p) {
         return arenaByPlayer.get(p);
     }
@@ -1703,7 +1726,8 @@ public class Arena implements IArena {
         players.forEach(c -> {
             BoardManager.getInstance().giveTabFeatures(c, this, false);
             TabPlayer tabPlayer = TabAPI.getInstance().getPlayer(c.getUniqueId());
-            assert tabPlayer != null;
+            // Players TAB never saw join (server-side bots) have no TAB player
+            if (tabPlayer == null) return;
             prefixPlaceholderTab.updateValue(tabPlayer, BoardManager.getInstance().getPrefixTab(tabPlayer));
             suffixPlaceholderTab.updateValue(tabPlayer, BoardManager.getInstance().getSuffixTab(tabPlayer));
             prefixPlaceholderHead.updateValue(tabPlayer, BoardManager.getInstance().getPrefixHead(tabPlayer));
@@ -1713,7 +1737,8 @@ public class Arena implements IArena {
         spectators.forEach(c -> {
             BoardManager.getInstance().giveTabFeatures(c, this, false);
             TabPlayer tabPlayer = TabAPI.getInstance().getPlayer(c.getUniqueId());
-            assert tabPlayer != null;
+            // Players TAB never saw join (server-side bots) have no TAB player
+            if (tabPlayer == null) return;
             prefixPlaceholderTab.updateValue(tabPlayer, BoardManager.getInstance().getPrefixTab(tabPlayer));
             suffixPlaceholderTab.updateValue(tabPlayer, BoardManager.getInstance().getSuffixTab(tabPlayer));
             prefixPlaceholderHead.updateValue(tabPlayer, BoardManager.getInstance().getPrefixHead(tabPlayer));
@@ -2094,19 +2119,19 @@ public class Arena implements IArena {
                         int entry = 0;
                         for (Map.Entry<String, Integer> e : reverseSortedMap.entrySet()) {
                             if (entry == 0) {
-                                Player onlinePlayer = Bukkit.getPlayerExact(e.getKey());
+                                Player onlinePlayer = getPlayerExact(e.getKey());
                                 if (onlinePlayer != null) {
                                     firstPlayer = onlinePlayer;
                                 }
                                 first = e.getValue();
                             } else if (entry == 1) {
-                                Player onlinePlayer = Bukkit.getPlayerExact(e.getKey());
+                                Player onlinePlayer = getPlayerExact(e.getKey());
                                 if (onlinePlayer != null) {
                                     secondPlayer = onlinePlayer;
                                 }
                                 second = e.getValue();
                             } else if (entry == 2) {
-                                Player onlinePlayer = Bukkit.getPlayerExact(e.getKey());
+                                Player onlinePlayer = getPlayerExact(e.getKey());
                                 if (onlinePlayer != null) {
                                     thirdPlayer = onlinePlayer;
                                 }
@@ -2982,7 +3007,8 @@ public class Arena implements IArena {
         for (Player player : team.getArena().getPlayers()) {
             String name = Language.getMsg(player, Messages.FORMATTING_BOSSBAR_DRAGON).replace("%bw_team%", team.getColor().chat() + team.getName()).replace("%bw_team_color%", String.valueOf(team.getColor().chat())).replace("%bw_team_name%", team.getDisplayName(getPlayerLanguage(player))).replace("%bw_team_letter%", String.valueOf(team.getName().length() != 0 ? team.getName().charAt(0) : ""));
             BossBar bb = TabAPI.getInstance().getBossBarManager().createBossBar(name, dragonPlaceholderName, String.valueOf(team.getColor()), "PROGRESS");
-            bb.addPlayer(Objects.requireNonNull(TabAPI.getInstance().getPlayer(player.getUniqueId())));
+            TabPlayer tabPlayer = TabAPI.getInstance().getPlayer(player.getUniqueId());
+            if (tabPlayer != null) bb.addPlayer(tabPlayer);
             dragonBossbars.add(bb);
         }
     }

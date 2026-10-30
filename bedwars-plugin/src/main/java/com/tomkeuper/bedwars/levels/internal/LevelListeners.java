@@ -20,6 +20,7 @@
 
 package com.tomkeuper.bedwars.levels.internal;
 
+import com.tomkeuper.bedwars.arena.Arena;
 import com.tomkeuper.bedwars.BedWars;
 import com.tomkeuper.bedwars.api.arena.team.ITeam;
 import com.tomkeuper.bedwars.api.events.gameplay.GameEndEvent;
@@ -72,7 +73,7 @@ public class LevelListeners implements Listener {
     public void onGameEnd(GameEndEvent e) {
         for (UUID p : e.getWinners()) {
             if (PlayerLevel.getLevelByPlayer(p) != null) {
-                Player p1 = Bukkit.getPlayer(p);
+                Player p1 = Arena.getPlayer(p);
                 if (p1 == null) continue;
                 int xpAmount = LevelsConfig.levels.getInt("xp-rewards.game-win");
                 if (xpAmount > 0) {
@@ -94,7 +95,7 @@ public class LevelListeners implements Listener {
         }
         for (UUID p : e.getLosers()) {
             if (PlayerLevel.getLevelByPlayer(p) != null) {
-                Player p1 = Bukkit.getPlayer(p);
+                Player p1 = Arena.getPlayer(p);
                 if (p1 == null) continue;
                 ITeam bwt = e.getArena().getExTeam(p1.getUniqueId());
                 if (bwt != null) {

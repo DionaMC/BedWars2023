@@ -20,6 +20,7 @@
 
 package com.tomkeuper.bedwars.shop.quickbuy;
 
+import com.tomkeuper.bedwars.arena.Arena;
 import com.tomkeuper.bedwars.BedWars;
 import com.tomkeuper.bedwars.api.arena.shop.ICategoryContent;
 import com.tomkeuper.bedwars.api.configuration.ConfigPath;
@@ -46,11 +47,11 @@ public class QuickBuyTask extends BukkitRunnable {
 
     @Override
     public void run() {
-        if (Bukkit.getPlayer(uuid) == null){
+        if (Arena.getPlayer(uuid) == null){
             cancel();
             return;
         }
-        if (Bukkit.getPlayer(uuid).isOnline()){
+        if (Arena.getPlayer(uuid).isOnline()){
             IPlayerQuickBuyCache cache = PlayerQuickBuyCache.getInstance().getQuickBuyCache(uuid);
             if (cache == null){
                 cancel();

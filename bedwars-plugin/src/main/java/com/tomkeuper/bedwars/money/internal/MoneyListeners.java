@@ -20,6 +20,7 @@
 
 package com.tomkeuper.bedwars.money.internal;
 
+import com.tomkeuper.bedwars.arena.Arena;
 import com.tomkeuper.bedwars.BedWars;
 import com.tomkeuper.bedwars.api.arena.IArena;
 import com.tomkeuper.bedwars.api.arena.team.ITeam;
@@ -46,7 +47,7 @@ public class MoneyListeners implements Listener {
     @EventHandler
     public void onGameEnd(GameEndEvent e) {
         for (UUID p : e.getWinners()) {
-            Player player = Bukkit.getPlayer(p);
+            Player player = Arena.getPlayer(p);
             if (player == null) continue;
             int gameWin = MoneyConfig.money.getInt("money-rewards.game-win");
             if (gameWin > 0) {
@@ -72,7 +73,7 @@ public class MoneyListeners implements Listener {
             }
         }
         for (UUID p : e.getLosers()) {
-            Player player = Bukkit.getPlayer(p);
+            Player player = Arena.getPlayer(p);
             if (player == null) continue;
             ITeam bwt = e.getArena().getExTeam(player.getUniqueId());
             IArena arena = e.getArena();

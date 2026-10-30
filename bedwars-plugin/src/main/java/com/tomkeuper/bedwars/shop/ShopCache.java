@@ -129,13 +129,13 @@ public class ShopCache implements IShopCache {
             if (cc.isDowngradable() && tier > 1) tier--;
             BedWars.debug("ShopCache Item Restore: " + cc.getIdentifier() + " for " + player);
             //noinspection ConstantConditions
-            cc.giveItems(Bukkit.getPlayer(player), getShopCache(player), arena);
+            cc.giveItems(Arena.getPlayer(player), getShopCache(player), arena);
         }
 
         @Override
         public void upgrade(int slot) {
             tier++;
-            Player p = Bukkit.getPlayer(player);
+            Player p = Arena.getPlayer(player);
             for (ItemStack i : p.getInventory().getContents()) {
                 if (i == null) continue;
                 if (i.getType() == Material.AIR) continue;
@@ -149,10 +149,11 @@ public class ShopCache implements IShopCache {
 
         @Override
         public void updateItem(int slot, Player p) {
-            if (p.getOpenInventory() != null) {
-                if (p.getOpenInventory().getTopInventory() != null) {
-                    p.getOpenInventory().getTopInventory().setItem(slot, cc.getItemStack(Bukkit.getPlayer(player), getShopCache(player)));
-                }
+            if (p == null || p.getOpenInventory() == null) return;
+            org.bukkit.inventory.Inventory top = p.getOpenInventory().getTopInventory();
+            // Only the shop menu, a chest; a purchase without it open would write into the crafting grid
+            if (top != null && top.getType() == org.bukkit.event.inventory.InventoryType.CHEST && slot < top.getSize()) {
+                top.setItem(slot, cc.getItemStack(Arena.getPlayer(player), getShopCache(player)));
             }
         }
     }
@@ -197,7 +198,7 @@ public class ShopCache implements IShopCache {
         ICachedItem ci = getCachedItem(cc.getIdentifier());
         if (ci == null) {
             ci = new CachedItem(cc);
-            ci.updateItem(slot, Bukkit.getPlayer(player));
+            ci.updateItem(slot, Arena.getPlayer(player));
         } else {
             if (cc.getContentTiers().size() > ci.getTier()) {
                 BedWars.debug("Cached item upgrade for " + cc.getIdentifier() + " player " + player);

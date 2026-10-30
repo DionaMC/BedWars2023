@@ -20,6 +20,7 @@
 
 package com.tomkeuper.bedwars.levels.internal;
 
+import com.tomkeuper.bedwars.arena.Arena;
 import com.tomkeuper.bedwars.BedWars;
 import com.tomkeuper.bedwars.api.events.player.PlayerLevelUpEvent;
 import com.tomkeuper.bedwars.api.events.player.PlayerXpGainEvent;
@@ -191,7 +192,7 @@ public class PlayerLevel {
      */
     public void addXp(int xp, PlayerXpGainEvent.XpSource source) {
         if (xp < 0) return;
-        PlayerXpGainEvent event = new PlayerXpGainEvent(Bukkit.getPlayer(uuid), xp, source);
+        PlayerXpGainEvent event = new PlayerXpGainEvent(Arena.getPlayer(uuid), xp, source);
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) return;
         this.currentXp += event.getAmount();
@@ -251,7 +252,7 @@ public class PlayerLevel {
             requiredXp = formatNumber(nextLevelCost);
             formattedCurrentXp = formatNumber(currentXp);
             Bukkit.getPluginManager().callEvent(new PlayerLevelUpEvent(
-                    Bukkit.getPlayer(getUuid()), level, nextLevelCost));
+                    Arena.getPlayer(getUuid()), level, nextLevelCost));
             modified = true;
         }
     }

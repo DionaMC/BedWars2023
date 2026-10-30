@@ -130,7 +130,7 @@ public class StatsListener implements Listener {
     @EventHandler
     public void onGameEnd(GameEndEvent event) {
         for (UUID uuid : event.getWinners()) {
-            Player player = Bukkit.getPlayer(uuid);
+            Player player = Arena.getPlayer(uuid);
             if (player == null) continue;
             if (!player.isOnline()) continue;
 
@@ -260,7 +260,8 @@ public class StatsListener implements Listener {
             }
         }
 
-        // Save or replace stats for player
+        // Save or replace stats for player, unless they never logged in
+        if (BedWars.getStatsManager().getUnsafe(player.getUniqueId()) == null) return;
         Bukkit.getScheduler().runTaskAsynchronously(BedWars.plugin, () -> BedWars.getRemoteDatabase().saveStats(playerStats));
     }
 

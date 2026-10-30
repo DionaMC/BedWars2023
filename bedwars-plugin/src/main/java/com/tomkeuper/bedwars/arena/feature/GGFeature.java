@@ -39,7 +39,7 @@ public class GGFeature implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onGameEnd(GameEndEvent event) {
         event.getWinners().forEach(uuid -> {
-            Player player = Bukkit.getPlayer(uuid);
+            Player player = Arena.getPlayer(uuid);
             winners.add(player.getUniqueId());
             Bukkit.getScheduler().runTaskLaterAsynchronously(BedWars.getPlugin(BedWars.class), () -> {winners.remove(player);}, BedWars.config.getInt(ConfigPath.GENERAL_CONFIGURATION_RESTART)  * 20L);
         });
@@ -66,7 +66,7 @@ public class GGFeature implements Listener {
          * Send message to players who have not died
          */
         arena.getPlayers().forEach(player -> event.getWinners().forEach(w -> {
-            Player winner = Bukkit.getPlayer(w);
+            Player winner = Arena.getPlayer(w);
             if (winner != null && winner.hasPermission(Permissions.PERMISSION_AUTO_GG)) {
                 ITeam team = arena.getTeam(winner);
                 Component message = ChatFormatting.parseLegacyMini(BedWars.config.getString(ConfigPath.GENERAL_CONFIGURATION_AUTO_GG_TEXT)
@@ -84,7 +84,7 @@ public class GGFeature implements Listener {
          * Send the message to players who are spectators
          */
         arena.getSpectators().forEach(player -> event.getWinners().forEach(w -> {
-            Player winner = Bukkit.getPlayer(w);
+            Player winner = Arena.getPlayer(w);
             if (winner != null && winner.hasPermission(Permissions.PERMISSION_AUTO_GG)) {
                 ITeam team = arena.getTeam(winner);
                 Component message = ChatFormatting.parseLegacyMini(BedWars.config.getString(ConfigPath.GENERAL_CONFIGURATION_AUTO_GG_TEXT)

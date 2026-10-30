@@ -78,7 +78,7 @@ public class PlayerQuickBuyCache implements IPlayerQuickBuyCache {
      */
     @Override
     public void addInInventory(Inventory inv, IShopCache shopCache) {
-        Player p = Bukkit.getPlayer(player);
+        Player p = Arena.getPlayer(player);
         IArena arena = Arena.getArenaByPlayer(p);
 
         // Resolve the arena-linked shop index (no global scans)

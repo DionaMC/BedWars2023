@@ -366,8 +366,8 @@ public class BoardManager implements IScoreboardService {
                 BedWars.plugin.getLogger().severe("An error occurred while giving Tab Features to player, TAB nameTagManager is null!");
                 return;
             }
-            if (tabPlayer == null){
-                BedWars.plugin.getLogger().severe("An error occurred while giving Tab Features to player, TAB tabPlayer is null!");
+            if (tabPlayer == null) {
+                BedWars.debug("No TAB player for " + player.getName() + ", no tab features");
                 return;
             }
 
@@ -479,8 +479,8 @@ public class BoardManager implements IScoreboardService {
 
     @Override
     public void remove(@NotNull Player player) {
-        if (Objects.requireNonNull(getTabPlayer(player)).isLoaded())
-            scoreboardManager.resetScoreboard(Objects.requireNonNull(getTabPlayer(player)));
+        TabPlayer tabPlayer = getTabPlayer(player);
+        if (tabPlayer != null && tabPlayer.isLoaded()) scoreboardManager.resetScoreboard(tabPlayer);
     }
 
     public void cleanupPlayer(@NotNull Player player) {
@@ -840,6 +840,7 @@ public class BoardManager implements IScoreboardService {
 
     @Override
     public @Nullable Scoreboard getScoreboard(@NotNull Player player) {
-        return scoreboardManager.getActiveScoreboard(Objects.requireNonNull(getTabPlayer(player)));
+        TabPlayer tabPlayer = getTabPlayer(player);
+        return tabPlayer == null ? null : scoreboardManager.getActiveScoreboard(tabPlayer);
     }
 }

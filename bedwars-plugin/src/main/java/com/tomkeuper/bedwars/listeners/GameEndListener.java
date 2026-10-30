@@ -20,6 +20,7 @@
 
 package com.tomkeuper.bedwars.listeners;
 
+import com.tomkeuper.bedwars.arena.Arena;
 import com.tomkeuper.bedwars.api.events.gameplay.GameEndEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -43,7 +44,7 @@ public class GameEndListener implements Listener {
 
         // clear inventories
         for (UUID p : event.getAliveWinners()) {
-            Bukkit.getPlayer(p).getInventory().clear();
+            Arena.getPlayer(p).getInventory().clear();
         }
 
         // clear Ender Chests for everyone currently in the arena (players and spectators)
