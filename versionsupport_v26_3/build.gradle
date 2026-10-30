@@ -1,0 +1,29 @@
+plugins {
+    id 'io.papermc.paperweight.userdev' version '2.0.0-beta.23'
+}
+
+dependencies {
+    compileOnly project(':bedwars-api')
+    implementation project(':versionsupport_common')
+    paperweight.paperDevBundle('26.3.build.140-beta')
+    compileOnly 'com.saicone.rtag:rtag:1.5.16'
+    compileOnly 'com.saicone.rtag:rtag-item:1.5.16'
+}
+
+paperweight {
+    injectPaperRepository = false
+}
+
+tasks.named('compileJava', JavaCompile) {
+    options.release = 25
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    maven { url = uri('https://repo.papermc.io/repository/maven-public/') }
+    maven { url = uri('https://repo.codemc.io/repository/nms/') } // Spigot, for versionsupport_common
+    maven { url = uri('https://jitpack.io') } // RTag
+}
+
+description = 'versionsupport_v26_3'

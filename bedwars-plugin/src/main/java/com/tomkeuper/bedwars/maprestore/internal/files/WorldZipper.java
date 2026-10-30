@@ -55,8 +55,7 @@ public class WorldZipper {
     }
 
     private File getWorldFolder() {
-        File worldContainer = Bukkit.getWorldContainer();
-        return new File(worldContainer, worldName);
+        return InternalAdapter.worldFolder(worldName);
     }
 
     private File getBackupFile() {

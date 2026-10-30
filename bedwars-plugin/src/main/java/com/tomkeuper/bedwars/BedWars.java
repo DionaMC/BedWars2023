@@ -108,6 +108,7 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 import io.github.slimjar.app.builder.ApplicationBuilder;
 import me.neznamy.tab.api.TabAPI;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import com.tomkeuper.bedwars.support.paper.PaperAudiences;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.*;
@@ -220,7 +221,8 @@ public class BedWars extends JavaPlugin {
 
         /* Load version support */
         //noinspection rawtypes
-        switch (minecraftVersion) {
+        // Paper 26.x reports versions such as 26.3.build.218
+        switch (minecraftVersion.replaceFirst("\\.build\\..*", "")) {
             case "1.20.4":
                 nmsVersion = "v1_20_R3";
                 break;
@@ -248,6 +250,10 @@ public class BedWars extends JavaPlugin {
                 break;
             case "1.21.11":
                 nmsVersion = "v1_21_R7";
+                break;
+            case "26.3":
+                nmsVersion = "v26_3";
+                break;
             default:
                 break;
         }
@@ -310,7 +316,7 @@ public class BedWars extends JavaPlugin {
             return;
         }
 
-        this.adventure = BukkitAudiences.create(this);
+        this.adventure = PaperAudiences.create(this);
 
         nms.registerVersionListeners();
 

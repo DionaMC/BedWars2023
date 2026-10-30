@@ -48,6 +48,20 @@ import static com.tomkeuper.bedwars.BedWars.plugin;
 public class InternalAdapter extends RestoreAdapter {
 
     public static File backupFolder = new File(BedWars.plugin.getDataFolder() + "/Cache");
+
+    /**
+     * The folder of a world by its name. Since 26.1 every world is a dimension of the main level, stored in
+     * {@code <level>/dimensions/minecraft/<name>}; before that each world had a folder of its own.
+     */
+    public static File worldFolder(String name) {
+        File dimensions = new File(Bukkit.getWorldContainer(), BedWars.nms.getMainLevel() + "/dimensions/minecraft");
+        return dimensions.isDirectory() ? new File(dimensions, name.toLowerCase()) : new File(Bukkit.getWorldContainer(), name);
+    }
+
+    private static File worldsFolder() {
+        File dimensions = new File(Bukkit.getWorldContainer(), BedWars.nms.getMainLevel() + "/dimensions/minecraft");
+        return dimensions.isDirectory() ? dimensions : Bukkit.getWorldContainer();
+    }
     public InternalAdapter(Plugin plugin) {
         super(plugin);
     }
@@ -63,7 +77,7 @@ public class InternalAdapter extends RestoreAdapter {
                 return;
             }
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                File bf = new File(backupFolder, a.getMapName() + ".zip"), af = new File(Bukkit.getWorldContainer(), a.getMapName());
+                File bf = new File(backupFolder, a.getMapName() + ".zip"), af = worldFolder(a.getMapName());
                 if (bf.exists()) {
                     FileUtil.delete(af);
                 }
@@ -72,7 +86,7 @@ public class InternalAdapter extends RestoreAdapter {
                     new WorldZipper(a.getMapName(), true);
                 } else {
                     try {
-                        ZipFileUtil.unzipFileIntoDirectory(bf, new File(Bukkit.getWorldContainer(), a.getWorldName()));
+                        ZipFileUtil.unzipFileIntoDirectory(bf, worldFolder(a.getWorldName()));
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -148,11 +162,11 @@ public class InternalAdapter extends RestoreAdapter {
     @Override
     public void onSetupSessionStart(ISetupSession s) {
         Bukkit.getScheduler().runTaskAsynchronously(getOwner(), () -> {
-            File bf = new File(backupFolder, s.getWorldName() + ".zip"), af = new File(Bukkit.getWorldContainer(), s.getWorldName());
+            File bf = new File(backupFolder, s.getWorldName() + ".zip"), af = worldFolder(s.getWorldName());
             if (bf.exists()) {
                 FileUtil.delete(af);
                 try {
-                    ZipFileUtil.unzipFileIntoDirectory(bf, new File(Bukkit.getWorldContainer(), s.getWorldName()));
+                    ZipFileUtil.unzipFileIntoDirectory(bf, worldFolder(s.getWorldName()));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -162,7 +176,7 @@ public class InternalAdapter extends RestoreAdapter {
             wc.generateStructures(false);
             Bukkit.getScheduler().runTask(getOwner(), () -> {
                 try {
-                    File level = new File(Bukkit.getWorldContainer(), s.getWorldName() + "/region");
+                    File level = new File(worldFolder(s.getWorldName()), "region");
                     if (level.exists()) {
                         s.getPlayer().sendMessage(ChatColor.GREEN + "Loading " + s.getWorldName() + " from Bukkit worlds container.");
                         deleteWorldTrash(s.getWorldName());
@@ -201,14 +215,14 @@ public class InternalAdapter extends RestoreAdapter {
 
     @Override
     public boolean isWorld(String name) {
-        return new File(Bukkit.getWorldContainer(), name + "/region").exists();
+        return new File(worldFolder(name), "region").exists();
     }
 
     @Override
     public void deleteWorld(String name) {
         Bukkit.getScheduler().runTaskAsynchronously(getOwner(), () -> {
             try {
-                FileUtils.deleteDirectory(new File(Bukkit.getWorldContainer(), name));
+                FileUtils.deleteDirectory(worldFolder(name));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -219,7 +233,7 @@ public class InternalAdapter extends RestoreAdapter {
     public void cloneArena(String name1, String name2) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
-                FileUtils.copyDirectory(new File(Bukkit.getWorldContainer(), name1), new File(Bukkit.getWorldContainer(), name2));
+                FileUtils.copyDirectory(worldFolder(name1), worldFolder(name2));
                 deleteWorldTrash(name2);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -230,12 +244,12 @@ public class InternalAdapter extends RestoreAdapter {
     @Override
     public List<String> getWorldsList() {
         List<String> worlds = new ArrayList<>();
-        File dir = Bukkit.getWorldContainer();
+        File dir = worldsFolder();
         if (dir.exists()) {
             File[] fls = dir.listFiles();
             for (File fl : Objects.requireNonNull(fls)) {
                 if (fl.isDirectory()) {
-                    File dat = new File(fl.getName() + "/region");
+                    File dat = new File(fl, "region");
                     if (dat.exists() && !fl.getName().startsWith("bw_temp")) {
                         worlds.add(fl.getName());
                     }
@@ -293,7 +307,7 @@ public class InternalAdapter extends RestoreAdapter {
             files.addAll(toAdd);
         }
         Bukkit.getScheduler().runTaskAsynchronously(getOwner(), () -> {
-            File[] files = Bukkit.getWorldContainer().listFiles();
+            File[] files = worldsFolder().listFiles();
             if (files != null) {
                 for (File f : files) {
                     if (f != null && f.isDirectory()) {
@@ -312,11 +326,11 @@ public class InternalAdapter extends RestoreAdapter {
     }
 
     private void deleteWorldTrash(String world) {
-        for (File f : new File[]{new File(Bukkit.getWorldContainer(), world + "/level.dat"),
-                new File(Bukkit.getWorldContainer(), world + "/level.dat_mcr"),
-                new File(Bukkit.getWorldContainer(), world + "/level.dat_old"),
-                new File(Bukkit.getWorldContainer(), world + "/session.lock"),
-                new File(Bukkit.getWorldContainer(), world + "/uid.dat")}) {
+        for (File f : new File[]{new File(worldFolder(world), "level.dat"),
+                new File(worldFolder(world), "level.dat_mcr"),
+                new File(worldFolder(world), "level.dat_old"),
+                new File(worldFolder(world), "session.lock"),
+                new File(worldFolder(world), "uid.dat")}) {
             if (f.exists()) {
                 if (!f.delete()) {
                     getOwner().getLogger().warning("Could not delete: " + f.getPath());
